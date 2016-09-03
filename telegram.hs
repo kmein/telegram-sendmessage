@@ -38,7 +38,7 @@ replaceHomeDirectory path = return path
 readConfig :: IO TG.Token
 readConfig = do
   path <- replaceHomeDirectory configFile
-  catch (TG.Token . strip <$> T.readFile path)
+  catch (TG.Token . ("bot" <>) . strip <$> T.readFile path)
         (\(e :: IOException) -> exitWithErrorMsg errMsg)
   where errMsg = "Could not read config file '" <> configFile <> "'!"
 
@@ -56,7 +56,7 @@ usage =
 sendMessage :: TG.Token -> String -> IO ()
 sendMessage token msg = do
   manager <- newManager tlsManagerSettings
-  updatesResponse <- TG.getUpdates token Nothing Nothing Nothing manager
+  updatesResponse <- TG.getUpdates token (Just (-1)) (Just 1) Nothing manager
   case updatesResponse of
     Left err -> exitWithErrorMsg "Could not call getUpdates!"
     Right res ->
